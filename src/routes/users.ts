@@ -1,8 +1,11 @@
 import express, {Express, NextFunction, Router, Request, Response} from "express"
 import Users from "../models/Users"
 import bcrypt from "bcrypt"
+import dotenv from "dotenv"
+import jwt from "jsonwebtoken"
 
 const router = Router()
+dotenv.config()
 
 router.post("/register/registration", async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -27,6 +30,32 @@ router.post("/register/registration", async (req: Request, res: Response, next: 
       res.status(500).send('Internal Server Error');
     }
   });
-
+router.post("/login/verification", async (req: Request, res: Response, next: NextFunction) => {
+  try{
+    const foundUser = await Users.findOne({email: req.body.email});
+    if(foundUser){
+      bcrypt.compare(req.body.password, <string>foundUser.password, (err, isMatch) => {
+        if(isMatch){
+          const payload = {
+            email: req.body.email,
+            password: foundUser.password
+          }
+          if(!process.env.SECRET){
+            res.status(500).send("Secret is not defined")
+          }
+          const token = jwt.sign(payload, <string>process.env.SECRET)
+          res.status(200).json({token})
+        } else{
+          throw err;
+        }
+      })
+    } else {
+      res.status(400).send("Email not found")
+    }
+  } catch (err) {
+    console.error(err)
+    res.status(500).send("Internal server error")
+  }
+})
 
 export default router
