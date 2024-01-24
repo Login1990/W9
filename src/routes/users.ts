@@ -58,4 +58,17 @@ router.post("/login/verification", async (req: Request, res: Response, next: Nex
   }
 })
 
+router.get("/login/authentification", (req:Request, res:Response, next:NextFunction) => {
+    const token = req.headers.authorization
+    if (token && process.env.SECRET){
+      jwt.verify(token, process.env.SECRET, (err, decoded) => {
+        if(err){
+          res.status(401).json({error: "Token verification failed. :("})
+        } else {
+          res.json(decoded)
+        }
+      })
+    }
+})
+
 export default router

@@ -1,4 +1,4 @@
-import { response } from "express"
+
 
 async function login_verification(){
     let email_input = (<HTMLInputElement>document.getElementById("email_input")).value
@@ -23,7 +23,7 @@ async function login_verification(){
         console.error(err)
     }
 }
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
     let button = document.getElementById("login_button");
     if (button){
         button.addEventListener("click", () => {
